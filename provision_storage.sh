@@ -1,8 +1,8 @@
-
 #!/bin/bash
 ssdmodel="SSDSC2BA40"
 hddmodel="HUS724040AL"
-debug=1
+debug=0
+errorly=0
 
 get_osd_count() {
   osd_count=$(ps faux | grep '[c]eph-osd' | wc -l)
@@ -18,7 +18,7 @@ get_ssd_array() {
 
 get_hdd_array() {
   hdds=""
-  for hdd in $(lsblk --output KNAME,MODEL | awk '/'${hddmodel}'/ {print $1}');
+  for hdd in $(lsblk --output KNAME,MODEL | grep -v 'PK1334PBKXKJDX' | awk '/'${hddmodel}'/ {print $1}');
   do
     hdds=( ${hdds[@]} "${hdd}" )
   done
@@ -34,7 +34,7 @@ create_osd_bluestore_ssd_hdd() {
     echo "${cephcmd}"
   else
     ${cephcmd}
-    while [[ $? -gt 0 ]];
+    while [[ $? -gt 0 ]] && [[ ${errorly} -gt 0 ]]
     do 
       sleep 2
       echo "----------------------FAILURE--------------------------"
@@ -54,7 +54,7 @@ create_osd_bluestore_hdd() {
     echo "${cephcmd}"
   else
     ${cephcmd}
-    while [[ $? -gt 0 ]];
+    while [[ $? -gt 0 ]] && [[ ${errorly} -gt 0 ]]
     do 
       sleep 2
       echo "----------------------FAILURE--------------------------"
@@ -106,7 +106,7 @@ mainloop() {
        jparts_check=$(( 2 * $(( ${ittor} - 1 )) ))
        check_ssd_parts ${pssd}
 
-       if [[ ${jparts_actual} -gt ${jparts_check} ]]
+       if [[ ${jparts_actual} -gt ${jparts_check} ]] && [[ ${debug} -lt 1 ]]
        then
            debugly
            exit 1
@@ -123,11 +123,14 @@ mainloop() {
        fi
        ittly=$(( ${ittly} + 1 ))
        get_osd_count
-       while [[ ${ittly} -gt ${osd_count} ]];
-       do
-         echo "${ittly} is greater than ${osd_count} .. sleeping"
-         sleep 5
-       done
+       if [[ ${debug} -lt 1 ]]
+       then
+           while [[ ${ittly} -gt ${osd_count} ]];
+           do
+             echo "${ittly} is greater than ${osd_count} .. sleeping"
+             sleep 5
+           done
+       fi
     done
 }
 
