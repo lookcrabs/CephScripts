@@ -47,7 +47,6 @@ create_osd_bluestore_ssd_hdd() {
 
 create_osd_bluestore_hdd() {
   phdd=$1
-  tried=1
   cephcmd="ceph-disk -v prepare --dmcrypt --dmcrypt-key-dir /etc/ceph/dmcrypt-keys --bluestore --cluster ceph --fs-type xfs -- /dev/${phdd}"
   if [[ ${debug} -gt 0 ]]
   then
@@ -103,7 +102,7 @@ mainloop() {
     do
        pssd=${ssds[ ${ssdindex} ]}
 
-       jparts_check=$(( 2 * $(( ${ittor} - 1 )) ))
+       jparts_check=$(( 2 * $(( ittor - 1 )) ))
        check_ssd_parts ${pssd}
 
        if [[ ${jparts_actual} -gt ${jparts_check} ]] && [[ ${debug} -lt 1 ]]
@@ -116,12 +115,12 @@ mainloop() {
        debugly
        if [[ ${ittor} -ge 5 ]];
        then
-         ssdindex=$(( ${ssdindex} + 1))
+         ssdindex=$(( ssdindex + 1))
          ittor=1
        else
-         ittor=$(( ${ittor} + 1))
+         ittor=$(( ittor + 1))
        fi
-       ittly=$(( ${ittly} + 1 ))
+       ittly=$(( ittly + 1 ))
        get_osd_count
        if [[ ${debug} -lt 1 ]]
        then
