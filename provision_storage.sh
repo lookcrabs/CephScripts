@@ -67,7 +67,7 @@ create_osd_bluestore_hdd() {
 
 check_ssd_parts() {
   pssd=$1
-  jparts_actual=$(( $(cat /proc/partitions  | grep -iE "\b${pssd}([0-9]+)\b" | wc -l ) ))
+  jparts_actual=$(( $(grep -c -iE "\b${pssd}([0-9]+)\b" /proc/partitions) ))
 }
 
 
