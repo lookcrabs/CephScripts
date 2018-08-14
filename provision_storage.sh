@@ -5,7 +5,7 @@ debug=0
 errorly=0
 
 get_osd_count() {
-  osd_count=$(ps faux | grep '[c]eph-osd' | wc -l)
+  osd_count=$(pgrep -c '[c]eph-osd')
 }
 
 get_ssd_array() {
